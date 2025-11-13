@@ -1,4 +1,4 @@
-import { getClient } from '../util/db';
+import { getClient } from '../util/db.js';
 import { v4 as uuidv4 } from 'uuid';
 
 const sql = getClient();

@@ -1,4 +1,4 @@
-import { getClient } from '../util/db';
+import { getClient } from '../util/db.js';
 
 const sql = getClient();
 
