@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestor de Projetos e Filamentos 3D</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f4f7f9;
+        }
+        /* Estilos para rolagem (Inventário e Histórico) */
+        .scrollable-list {
+            max-height: 25vh;
+            overflow-y: auto;
+            scrollbar-width: thin;
+            scrollbar-color: #4f46e5 #e5e7eb;
+        }
+        /* Estilo para tabela de projetos (mais alto) */
+        .project-table-container {
+            max-height: 40vh; 
+            overflow-y: auto;
+        }
+        .scrollable-list::-webkit-scrollbar, .project-table-container::-webkit-scrollbar {
+            width: 8px;
+        }
+        .scrollable-list::-webkit-scrollbar-thumb, .project-table-container::-webkit-scrollbar-thumb {
+            background-color: #4f46e5;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+
+    <div id="loading-overlay" class="fixed inset-0 bg-white/70 flex items-center justify-center z-50">
+        <div class="flex flex-col items-center">
+            <svg class="animate-spin h-10 w-10 text-indigo-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            <p class="mt-2 text-indigo-600">A iniciar o ambiente e carregar dados...</p>
+        </div>
+    </div>
+
+    <main class="max-w-6xl mx-auto">
+        <header class="mb-6 bg-white p-4 rounded-xl shadow-lg border-b-4 border-indigo-500">
+            <h1 class="text-3xl font-extrabold text-gray-900 mb-1">Gestor de Projetos e Filamentos 3D (Partilhado)</h1>
+            <p class="text-gray-500">Registe bobinas, lance projetos e acompanhe os custos de Telmo e Humberto.</p>
+            <p id="user-info" class="text-sm mt-2 text-indigo-500 break-all">ID do Utilizador: a carregar...</p>
+            <p class="text-xs font-semibold text-green-600">⚠️ Nota: Este é um modo partilhado. Todos os utilizadores veem e editam os mesmos dados.</p>
+        </header>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            
+            <div class="lg:col-span-1 space-y-6">
+                
+                <div class="bg-white p-5 rounded-xl shadow-md">
+                    <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2 text-indigo-500"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
+                        Registar Nova Bobina
+                    </h2>
+                    <form id="add-filament-form">
+                        <input type="text" id="name" placeholder="Nome (e.g., PLA Preto)" required class="w-full mb-3 p-2 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500">
+                        <select id="type" required class="w-full mb-3 p-2 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500">
+                            <option value="" disabled selected>Tipo de Material</option>
+                            <option value="PLA">PLA Basic</option>
+                            <option value="PETG">PETG</option>
+                            <option value="ABS">ABS</option>
+                            <option value="Outro">Outro</option>
+                        </select>
+                        <input type="number" id="initial_kg" step="0.01" min="0.1" placeholder="Peso Inicial (Kg, e.g., 1.0)" required class="w-full mb-3 p-2 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500">
+                        <input type="number" id="cost_per_kg" step="0.01" min="0" placeholder="Custo (€ por Kg, e.g., 10.00)" required class="w-full mb-4 p-2 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500">
+                        <button type="submit" class="w-full bg-indigo-600 text-white p-3 rounded-lg font-semibold hover:bg-indigo-700 transition duration-200 shadow-md">Adicionar Bobina</button>
+                    </form>
+                </div>
+
+                <div class="bg-white p-5 rounded-xl shadow-md border-l-4 border-red-500">
+                    <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2 text-red-500"><path d="M12 3v18"/><path d="M15 6.5l-3 3-3-3"/><path d="M9 17.5l3-3 3 3"/></svg>
+                        Registar Novo Projeto
+                    </h2>
+                    <form id="add-project-form">
+                        <select id="project-user-select" required class="w-full mb-3 p-2 border border-gray-300 rounded-lg focus:ring-red-500 focus:border-red-500">
+                            <option value="" disabled selected>Responsável (Telmo ou Humberto)</option>
+                            <option value="Telmo">Telmo</option>
+                            <option value="Humberto">Humberto</option>
+                        </select>
+                        
+                        <input type="text" id="project-name" placeholder="Nome do Projeto/Produto" required class="w-full mb-3 p-2 border border-gray-300 rounded-lg focus:ring-red-500 focus:border-red-500">
+
+                        <select id="project-filament-select" required class="w-full mb-3 p-2 border border-gray-300 rounded-lg focus:ring-red-500 focus:border-red-500">
+                            <option value="" disabled selected>Filamento a Usar</option>
+                            </select>
+                        
+                        <input type="number" id="grams-required" step="1" min="1" placeholder="Filamento Necessário (Gramas)" required class="w-full mb-4 p-2 border border-gray-300 rounded-lg focus:ring-red-500 focus:border-red-500">
+                        <button type="submit" class="w-full bg-red-600 text-white p-3 rounded-lg font-semibold hover:bg-red-700 transition duration-200 shadow-md">Iniciar Impressão (Registar Projeto)</button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="lg:col-span-2 space-y-6">
+                
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="bg-indigo-100 p-4 rounded-xl shadow-md border-l-4 border-indigo-600">
+                        <p class="text-sm font-medium text-indigo-700">Stock Total Restante</p>
+                        <p id="total-weight" class="text-2xl font-bold text-indigo-900 mt-1">0.000 Kg</p>
+                    </div>
+                    <div class="bg-indigo-100 p-4 rounded-xl shadow-md border-l-4 border-indigo-600">
+                        <p class="text-sm font-medium text-indigo-700">Valor Total do Stock</p>
+                        <p id="total-value" class="text-2xl font-bold text-indigo-900 mt-1">€ 0.00</p>
+                    </div>
+                </div>
+
+                <div class="bg-white p-5 rounded-xl shadow-md">
+                    <h2 class="text-xl font-bold text-gray-800 mb-4">Bobinas no Inventário</h2>
+                    <div id="filament-list" class="space-y-3 scrollable-list">
+                        <p class="text-center text-gray-500 py-6">Adicione a sua primeira bobina para começar.</p>
+                    </div>
+                </div>
+
+                <div class="bg-white p-5 rounded-xl shadow-md">
+                    <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2 text-red-500"><path d="M12 22s-8-4-8-10V5l8-3 8 3v7c0 6-8 10-8 10z"/></svg>
+                        Projetos Pendentes
+                    </h2>
+                    <div class="project-table-container">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50 sticky top-0">
+                                <tr>
+                                    <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Projeto</th>
+                                    <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Utilizador</th>
+                                    <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Filamento</th>
+                                    <th class="px-3 py-2 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Gramas</th>
+                                    <th class="px-3 py-2 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Ação</th>
+                                </tr>
+                            </thead>
+                            <tbody id="project-list" class="bg-white divide-y divide-gray-200">
+                                <tr><td colspan="5" class="text-center text-gray-500 py-4">Nenhum projeto ativo.</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="bg-white p-5 rounded-xl shadow-md">
+                    <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2 text-green-500"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="17" y1="13" x2="17" y2="21"/><line x1="21" y1="17" x2="13" y2="17"/></svg>
+                        Análise de Custos por Utilizador
+                    </h2>
+                    <div id="cost-analysis" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        </div>
+                </div>
+
+                <div class="bg-white p-5 rounded-xl shadow-md">
+                    <h2 class="text-xl font-bold text-gray-800 mb-4">Histórico de Utilização (Últimas 10)</h2>
+                    <div id="history-list" class="space-y-3 scrollable-list">
+                        <p class="text-center text-gray-500 py-6">O histórico aparecerá aqui...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div id="custom-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="bg-white p-6 rounded-xl shadow-2xl max-w-sm w-full">
+            <h3 id="modal-title" class="text-lg font-bold mb-3 text-gray-800">Mensagem</h3>
+            <p id="modal-message" class="mb-4 text-gray-600"></p>
+            <div class="flex justify-end space-x-3">
+                <button id="modal-cancel" class="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 hidden">Cancelar</button>
+                <button id="modal-ok" class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">OK</button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        // --- Configurações & Variáveis Globais ---
+        const API_BASE_URL = '/api'; // Rota base para as Vercel Serverless Functions
+        const POLLING_INTERVAL = 3000; // 3 segundos para simular tempo real (Polling)
+        
+        let filamentData = []; 
+        let costHistory = []; 
+        let projectData = []; 
+        let isAuthReady = true; // Não há autenticação complexa, então assumimos que está pronto.
+        const userId = "SharedUser"; // ID estático para o modo partilhado.
+
+        // --- Funções Auxiliares de UI (Mantidas) ---
+        const formatCurrency = (value) => `€ ${parseFloat(value).toFixed(2)}`;
+        const formatWeight = (value) => `${parseFloat(value).toFixed(3)} Kg`;
+        const formatDate = (dateString) => {
+            // Converte a string de data ISO para um formato local legível
+            if (dateString) {
+                return new Date(dateString).toLocaleDateString('pt-PT');
+            }
+            return new Date().toLocaleDateString('pt-PT');
+        };
+
+        // Função de Modal Mantida
+        const showModal = (title, message, isConfirm = false) => {
+            const modal = document.getElementById('custom-modal');
+            document.getElementById('modal-title').textContent = title;
+            document.getElementById('modal-message').textContent = message;
+            
+            const okButton = document.getElementById('modal-ok');
+            const cancelButton = document.getElementById('modal-cancel');
+
+            okButton.textContent = isConfirm ? 'Confirmar' : 'OK';
+            cancelButton.classList.toggle('hidden', !isConfirm);
+
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            
+            return new Promise(resolve => {
+                const handleOk = () => {
+                    modal.classList.add('hidden');
+                    modal.classList.remove('flex');
+                    okButton.removeEventListener('click', handleOk);
+                    cancelButton.removeEventListener('click', handleCancel);
+                    resolve(true);
+                };
+
+                const handleCancel = () => {
+                    modal.classList.add('hidden');
+                    modal.classList.remove('flex');
+                    okButton.removeEventListener('click', handleOk);
+                    cancelButton.removeEventListener('click', handleCancel);
+                    resolve(false);
+                };
+
+                okButton.addEventListener('click', handleOk);
+                if (isConfirm) {
+                    cancelButton.addEventListener('click', handleCancel);
+                }
+            });
+        };
+
+        const hideLoading = () => {
+            document.getElementById('loading-overlay').classList.add('hidden');
+        };
+
+        // --- Funções de API (Substituem o Firebase) ---
+
+        /**
+         * Busca todos os dados do servidor. Usado para Polling.
+         */
+        const fetchData = async () => {
+            try {
+                // Usamos /api/filaments (que agora é /api/filaments/index.js)
+                const [filamentsRes, projectsRes, historyRes] = await Promise.all([
+                    fetch(`${API_BASE_URL}/filaments`),
+                    fetch(`${API_BASE_URL}/projects`),
+                    fetch(`${API_BASE_URL}/history`),
+                ]);
+
+                filamentData = await filamentsRes.json();
+                projectData = await projectsRes.json();
+                costHistory = await historyRes.json();
+
+                // Renderizar todos os componentes após receber os dados
+                renderFilamentList(filamentData);
+                updateFilamentSelect(filamentData);
+                updateSummary(filamentData);
+                renderProjectList(projectData);
+                renderHistoryList(costHistory);
+                renderCostAnalysis(costHistory);
+
+            } catch (error) {
+                console.error("Erro ao buscar dados do Vercel API:", error);
+                // Não mostramos o modal aqui para não interromper o polling
+            }
+        };
+        
+        /**
+         * Inicia o Polling para buscar dados a cada X segundos.
+         */
+        const startPolling = async () => {
+            document.getElementById('user-info').textContent = `ID do Utilizador: ${userId} (Polling: ${POLLING_INTERVAL / 1000}s)`;
+            await fetchData(); // Busca inicial
+            setInterval(fetchData, POLLING_INTERVAL); // Busca contínua
+            hideLoading();
+        };
+
+
+        // --- Funções de Renderização (Adaptadas) ---
+        
+        const updateFilamentSelect = (filaments) => {
+            const select = document.getElementById('project-filament-select');
+            const currentValue = select.value;
+            select.innerHTML = '<option value="" disabled selected>Filamento a Usar</option>';
+            
+            filaments.forEach(filament => {
+                if (filament.remaining_g > 0) {
+                    const option = document.createElement('option');
+                    option.value = filament.id;
+                    option.textContent = `${filament.name} (${formatWeight(filament.remaining_g / 1000)})`;
+                    select.appendChild(option);
+                }
+            });
+            
+            if (currentValue && select.querySelector(`option[value="${currentValue}"]`)) {
+                select.value = currentValue;
+            } else {
+                select.value = "";
+            }
+        };
+
+        const updateSummary = (filaments) => {
+            let totalWeightKg = 0;
+            let totalValueEur = 0;
+
+            filaments.forEach(f => {
+                const remainingKg = f.remaining_g / 1000;
+                const value = remainingKg * f.cost_per_kg;
+                totalWeightKg += remainingKg;
+                totalValueEur += value;
+            });
+
+            document.getElementById('total-weight').textContent = formatWeight(totalWeightKg);
+            document.getElementById('total-value').textContent = formatCurrency(totalValueEur);
+        };
+
+        const renderFilamentList = (filaments) => {
+            const list = document.getElementById('filament-list');
+            list.innerHTML = '';
+
+            if (filaments.length === 0) {
+                list.innerHTML = '<p class="text-center text-gray-500 py-6">Nenhuma bobina registada.</p>';
+                return;
+            }
+            
+            filaments.sort((a, b) => b.remaining_g - a.remaining_g);
+
+            filaments.forEach(f => {
+                const remainingKg = f.remaining_g / 1000;
+                const initialG = f.initial_kg * 1000;
+                const percent = initialG > 0 ? Math.round((f.remaining_g / initialG) * 100) : 0;
+                const isLow = remainingKg < 0.1;
+
+                const item = document.createElement('div');
+                item.className = `p-4 rounded-lg shadow-sm border ${isLow ? 'bg-red-50 border-red-400' : 'bg-gray-50 border-gray-200'} flex items-center justify-between`;
+                
+                item.innerHTML = `
+                    <div class="flex-grow">
+                        <p class="font-semibold text-gray-900">${f.name} (${f.type})</p>
+                        <div class="text-sm text-gray-600 flex items-center mt-1">
+                            <span>Stock: ${formatWeight(remainingKg)}</span>
+                            <span class="ml-4">Custo/Kg: ${formatCurrency(f.cost_per_kg)}</span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-2 mt-2">
+                            <div class="h-2 rounded-full ${isLow ? 'bg-red-500' : 'bg-indigo-500'}" style="width: ${percent}%"></div>
+                        </div>
+                        <p class="text-xs ${isLow ? 'text-red-500 font-bold' : 'text-gray-500'} mt-1">${percent}% restante</p>
+                    </div>
+                    <button data-id="${f.id}" class="delete-filament-btn ml-4 p-2 text-gray-400 hover:text-red-600 transition duration-150">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                    </button>
+                `;
+                
+                list.appendChild(item);
+            });
+            
+            document.querySelectorAll('.delete-filament-btn').forEach(button => {
+                button.addEventListener('click', handleDeleteFilament);
+            });
+        };
+
+        const renderProjectList = (projects) => {
+            const tbody = document.getElementById('project-list');
+            tbody.innerHTML = '';
+            
+            if (projects.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" class="text-center text-gray-500 py-4">Nenhum projeto ativo.</td></tr>';
+                return;
+            }
+
+            projects.forEach(p => {
+                const filamentName = filamentData.find(f => f.id === p.filamentId)?.name || 'Filamento Desconhecido';
+                
+                const row = document.createElement('tr');
+                row.className = 'hover:bg-gray-50';
+                row.innerHTML = `
+                    <td class="px-3 py-3 whitespace-nowrap text-sm font-medium text-gray-900">${p.projectName}</td>
+                    <td class="px-3 py-3 whitespace-nowrap text-sm text-gray-600">${p.user}</td>
+                    <td class="px-3 py-3 whitespace-nowrap text-sm text-gray-600">${filamentName}</td>
+                    <td class="px-3 py-3 whitespace-nowrap text-sm text-right font-mono text-gray-700">${p.gramsRequired}g</td>
+                    <td class="px-3 py-3 whitespace-nowrap text-center">
+                        <button data-id="${p.id}" class="complete-project-btn bg-green-500 text-white text-xs font-semibold py-1 px-3 rounded-full hover:bg-green-600 transition duration-150 shadow-md">
+                            Concluir Impressão
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+
+            document.querySelectorAll('.complete-project-btn').forEach(button => {
+                button.addEventListener('click', handleCompleteProject);
+            });
+        };
+
+        const renderCostAnalysis = (history) => {
+            const analysisDiv = document.getElementById('cost-analysis');
+            analysisDiv.innerHTML = '';
+
+            const costs = {
+                Telmo: 0,
+                Humberto: 0
+            };
+
+            history.forEach(h => {
+                if (h.user in costs) {
+                    costs[h.user] += h.cost;
+                }
+            });
+
+            Object.keys(costs).forEach(user => {
+                const cost = costs[user];
+                const card = document.createElement('div');
+                card.className = `p-4 rounded-xl shadow-md border-l-4 ${user === 'Telmo' ? 'bg-blue-100 border-blue-600' : 'bg-purple-100 border-purple-600'}`;
+                card.innerHTML = `
+                    <p class="text-sm font-medium ${user === 'Telmo' ? 'text-blue-700' : 'text-purple-700'}">${user} (Custo Acumulado)</p>
+                    <p class="text-2xl font-bold ${user === 'Telmo' ? 'text-blue-900' : 'text-purple-900'} mt-1">${formatCurrency(cost)}</p>
+                `;
+                analysisDiv.appendChild(card);
+            });
+        };
+
+        const renderHistoryList = (history) => {
+            const list = document.getElementById('history-list');
+            list.innerHTML = '';
+
+            if (history.length === 0) {
+                list.innerHTML = '<p class="text-center text-gray-500 py-6">O histórico de utilização aparecerá aqui.</p>';
+                return;
+            }
+            
+            // Ordenar pelo mais recente (a data vem como ISO string do backend)
+            history.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+            history = history.slice(0, 10);
+
+            history.forEach(h => {
+                const item = document.createElement('div');
+                item.className = 'p-3 bg-gray-50 border-l-4 border-gray-300 rounded-lg shadow-sm';
+                item.innerHTML = `
+                    <p class="font-semibold text-gray-900">${h.user} concluiu: ${h.description}</p>
+                    <div class="text-sm text-gray-600 flex justify-between items-center mt-1">
+                        <span>
+                            Gasto: <span class="font-mono text-red-600">${h.gramsUsed}g</span>
+                            (<span class="font-mono">${formatCurrency(h.cost)}</span>)
+                        </span>
+                        <span class="text-xs text-gray-500">${formatDate(h.timestamp)}</span>
+                    </div>
+                `;
+                list.appendChild(item);
+            });
+        };
+
+
+        // --- Handlers de Formulário e Ações (MODIFICADOS PARA FETCH) ---
+
+        document.getElementById('add-filament-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const form = e.target;
+            const name = form.name.value.trim();
+            const type = form.type.value;
+            const initial_kg = parseFloat(form.initial_kg.value);
+            const cost_per_kg = parseFloat(form.cost_per_kg.value);
+
+            if (!name || initial_kg <= 0 || cost_per_kg < 0 || isNaN(initial_kg) || isNaN(cost_per_kg)) {
+                showModal("Erro", "Por favor, preencha todos os campos corretamente.");
+                return;
+            }
+
+            try {
+                // Envia para /api/filaments (que é /api/filaments/index.js)
+                const response = await fetch(`${API_BASE_URL}/filaments`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        name,
+                        type,
+                        initial_kg,
+                        cost_per_kg,
+                        userId
+                    })
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || 'Erro desconhecido ao adicionar bobina.');
+                }
+                
+                form.reset();
+                showModal("Sucesso", `Bobina "${name}" adicionada ao inventário!`);
+                await fetchData(); // Atualiza a UI imediatamente
+
+            } catch (error) {
+                console.error("Erro ao adicionar filamento:", error);
+                showModal("Erro de BD", `Não foi possível adicionar a bobina: ${error.message}`);
+            }
+        });
+
+        document.getElementById('add-project-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const form = e.target;
+            const user = form['project-user-select'].value;
+            const projectName = form['project-name'].value.trim();
+            const filamentId = form['project-filament-select'].value;
+            const gramsRequired = parseInt(form['grams-required'].value, 10);
+            
+            if (!user) {
+                showModal("Erro de Utilizador", "Por favor, selecione o responsável pelo projeto (Telmo ou Humberto).");
+                return;
+            }
+
+            if (!projectName || !filamentId || gramsRequired <= 0 || isNaN(gramsRequired)) {
+                showModal("Erro", "Por favor, preencha todos os campos do projeto corretamente.");
+                return;
+            }
+
+            const selectedFilament = filamentData.find(f => f.id === filamentId);
+
+            if (!selectedFilament) {
+                showModal("Erro de Stock", "O filamento selecionado não existe ou não foi carregado corretamente.");
+                return;
+            }
+
+            if (selectedFilament.remaining_g < gramsRequired) {
+                showModal("Stock Insuficiente", `Apenas tem ${selectedFilament.remaining_g}g de ${selectedFilament.name}. Necessita de ${gramsRequired}g.`);
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/projects`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        user,
+                        projectName,
+                        filamentId,
+                        gramsRequired,
+                        costPerKg: selectedFilament.cost_per_kg, 
+                        userId
+                    })
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || 'Erro desconhecido ao registar projeto.');
+                }
+                
+                form.reset();
+                showModal("Sucesso", `Projeto "${projectName}" registado e pronto para impressão!`);
+                await fetchData(); // Atualiza a UI imediatamente
+
+            } catch (error) {
+                console.error("Erro ao adicionar projeto:", error);
+                showModal("Erro de BD", `Não foi possível registar o projeto: ${error.message}`);
+            }
+        });
+
+        const handleCompleteProject = async (e) => {
+            const projectId = e.target.dataset.id;
+            
+            const confirm = await showModal("Confirmar Conclusão", "Tem a certeza que a impressão foi concluída? O stock será deduzido e o custo registado.", true);
+            if (!confirm) return;
+
+            try {
+                // Envia para /api/projects/complete.js
+                const response = await fetch(`${API_BASE_URL}/projects/complete`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ projectId })
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || 'Erro desconhecido ao concluir projeto.');
+                }
+                
+                const result = await response.json();
+                showModal("Concluído!", `Projeto "${result.projectName}" finalizado. ${result.gramsUsed}g deduzidos. Custo: ${formatCurrency(result.cost)}.`);
+                await fetchData(); // Atualiza a UI imediatamente
+
+            } catch (error) {
+                console.error("Erro ao concluir projeto:", error);
+                showModal("Erro de BD", `Não foi possível concluir o projeto: ${error.message}`);
+            }
+        };
+
+        const handleDeleteFilament = async (e) => {
+            const filamentId = e.currentTarget.dataset.id;
+            const filament = filamentData.find(f => f.id === filamentId);
+
+            if (!filament) return;
+
+            const confirm = await showModal("Confirmar Eliminação", `Tem a certeza que deseja ELIMINAR a bobina: ${filament.name}? Esta ação irá apagar todos os projetos pendentes associados a este filamento.`, true);
+            if (!confirm) return;
+
+            try {
+                // Envia para /api/filaments/[id].js
+                const response = await fetch(`${API_BASE_URL}/filaments/${filamentId}`, {
+                    method: 'DELETE',
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || 'Erro desconhecido ao apagar filamento.');
+                }
+                
+                const result = await response.json();
+                showModal("Eliminado", `Bobina "${filament.name}" removida com sucesso.`);
+                await fetchData(); // Atualiza a UI imediatamente
+                
+            } catch (error) {
+                console.error("Erro ao apagar filamento:", error);
+                showModal("Erro de BD", `Não foi possível apagar a bobina: ${error.message}`);
+            }
+        };
+
+        // --- Início da Aplicação ---
+        startPolling();
+    </script>
+
+</body>
+</html>
