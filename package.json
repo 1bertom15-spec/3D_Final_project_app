@@ -1,6 +1,7 @@
 {
   "name": "3d-filament-manager",
   "version": "1.0.0",
+  "type": "module",
   "description": "3D Filament and Project Manager using Vercel Postgres",
   "main": "index.html",
   "dependencies": {
