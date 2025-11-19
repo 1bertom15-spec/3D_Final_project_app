@@ -1,6 +1,6 @@
 
 Humberto Melo <1bertom15@gmail.com>
-21:28 (0 minutes ago)
+21:41 (0 minutes ago)
 to me
 
 <!DOCTYPE html>
@@ -37,13 +37,10 @@ to me
     <div id="login-screen" class="fixed inset-0 bg-slate-900 flex items-center justify-center z-[100]">
         <div class="bg-white dark:bg-darkcard p-8 rounded-2xl shadow-2xl w-full max-w-xs text-center border border-slate-200 dark:border-slate-700">
             <div class="mb-4 bg-indigo-100 dark:bg-indigo-900 w-16 h-16 rounded-full flex items-center justify-center mx-auto">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-indigo-600 dark:text-indigo-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                </svg>
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-indigo-600 dark:text-indigo-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
             </div>
             <h2 class="text-xl font-bold text-slate-800 dark:text-white mb-2">Gestor 3D</h2>
             <p class="text-sm text-slate-500 dark:text-slate-400 mb-4">Área Restrita</p>
-           
             <form id="login-form" class="space-y-3">
                 <input type="password" id="access-code" placeholder="PIN" class="w-full p-3 text-center text-lg tracking-widest bg-slate-50 dark:bg-darkinput border border-slate-300 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none dark:text-white transition" maxlength="6">
                 <button type="submit" class="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl transition shadow-lg shadow-indigo-200 dark:shadow-none">Entrar</button>
@@ -60,30 +57,16 @@ to me
     </div>
 
     <main id="app-content" class="max-w-7xl mx-auto space-y-6 hidden">
-       
         <header class="bg-white dark:bg-darkcard p-6 rounded-2xl shadow-sm border-b-4 border-indigo-500 flex justify-between items-center flex-wrap gap-4 transition-colors">
             <div class="flex items-center gap-3">
-                <button id="logout-btn" class="p-2 text-slate-400 hover:text-red-500 transition" title="Sair">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>
-                </button>
-                <div>
-                    <h1 class="text-2xl md:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">Gestor de Impressão</h1>
-                    <p class="text-slate-500 dark:text-slate-400 text-sm mt-1">Telmo, Humberto & Empresa</p>
-                </div>
+                <button id="logout-btn" class="p-2 text-slate-400 hover:text-red-500 transition" title="Sair"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg></button>
+                <div><h1 class="text-2xl md:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">Gestor de Impressão</h1><p class="text-slate-500 dark:text-slate-400 text-sm mt-1">Telmo, Humberto & Empresa</p></div>
             </div>
-           
             <div class="flex items-center gap-6">
                 <div class="flex gap-4 text-right">
-                    <div>
-                        <p class="text-xs text-slate-400 uppercase font-bold">Stock Total</p>
-                        <p id="total-weight" class="text-xl font-bold text-indigo-600 dark:text-indigo-400">0.000 Kg</p>
-                    </div>
-                    <div class="border-l pl-4 dark:border-slate-600">
-                        <p class="text-xs text-slate-400 uppercase font-bold">Valor Stock</p>
-                        <p id="total-value" class="text-xl font-bold text-emerald-600 dark:text-emerald-400">€ 0.00</p>
-                    </div>
+                    <div><p class="text-xs text-slate-400 uppercase font-bold">Stock Total</p><p id="total-weight" class="text-xl font-bold text-indigo-600 dark:text-indigo-400">0.000 Kg</p></div>
+                    <div class="border-l pl-4 dark:border-slate-600"><p class="text-xs text-slate-400 uppercase font-bold">Valor Stock</p><p id="total-value" class="text-xl font-bold text-emerald-600 dark:text-emerald-400">€ 0.00</p></div>
                 </div>
-               
                 <button id="theme-toggle" class="p-2 rounded-lg bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-yellow-300 hover:bg-slate-200 dark:hover:bg-slate-600 transition-all">
                     <svg id="icon-sun" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
                     <svg id="icon-moon" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 block" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>
@@ -94,126 +77,71 @@ to me
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
             <div class="lg:col-span-4 space-y-6">
                 <div class="bg-white dark:bg-darkcard p-6 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 transition-colors">
-                    <h2 class="text-lg font-bold mb-4 flex items-center gap-2 text-slate-800 dark:text-slate-100">
-                        <span class="bg-indigo-100 dark:bg-indigo-900 p-2 rounded-lg text-indigo-600 dark:text-indigo-300">📦</span> Registar Bobina
-                    </h2>
+                    <h2 class="text-lg font-bold mb-4 flex items-center gap-2 text-slate-800 dark:text-slate-100"><span class="bg-indigo-100 dark:bg-indigo-900 p-2 rounded-lg text-indigo-600 dark:text-indigo-300">📦</span> Registar Bobina</h2>
                     <form id="add-filament-form" class="space-y-3">
                         <input type="text" id="name" placeholder="Nome (Ex: PLA Preto)" required class="w-full p-3 bg-slate-50 dark:bg-darkinput border border-slate-200 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none transition dark:text-white">
-                        <div class="grid grid-cols-2 gap-3">
-                            <select id="type" required class="p-3 bg-slate-50 dark:bg-darkinput border border-slate-200 dark:border-slate-600 rounded-xl outline-none dark:text-white">
-                                <option value="PLA">PLA</option><option value="PETG">PETG</option><option value="ABS">ABS</option><option value="TPU">TPU</option><option value="Outro">Outro</option>
-                            </select>
-                            <input type="number" id="initial_kg" step="0.01" min="0.1" placeholder="Peso (Kg)" required class="p-3 bg-slate-50 dark:bg-darkinput border border-slate-200 dark:border-slate-600 rounded-xl outline-none dark:text-white">
-                        </div>
-                        <div class="relative">
-                            <span class="absolute left-3 top-3 text-slate-400">€</span>
-                            <input type="number" id="cost_per_kg" step="0.01" min="0" placeholder="Custo por Kg" required class="w-full p-3 pl-8 bg-slate-50 dark:bg-darkinput border border-slate-200 dark:border-slate-600 rounded-xl outline-none dark:text-white">
-                        </div>
-                        <button type="submit" class="w-full py-3 bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 text-white font-bold rounded-xl transition shadow-lg shadow-indigo-200 dark:shadow-none">Adicionar</button>
+                        <div class="grid grid-cols-2 gap-3"><select id="type" required class="p-3 bg-slate-50 dark:bg-darkinput border border-slate-200 dark:border-slate-600 rounded-xl outline-none dark:text-white"><option value="PLA">PLA</option><option value="PETG">PETG</option><option value="ABS">ABS</option><option value="TPU">TPU</option><option value="Outro">Outro</option></select><input type="number" id="initial_kg" step="0.01" min="0.1" placeholder="Kg" required class="p-3 bg-slate-50 dark:bg-darkinput border border-slate-200 dark:border-slate-600 rounded-xl outline-none dark:text-white"></div>
+                        <div class="relative"><span class="absolute left-3 top-3 text-slate-400">€</span><input type="number" id="cost_per_kg" step="0.01" min="0" placeholder="Custo/Kg" required class="w-full p-3 pl-8 bg-slate-50 dark:bg-darkinput border border-slate-200 dark:border-slate-600 rounded-xl outline-none dark:text-white"></div>
+                        <button type="submit" class="w-full py-3 bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 text-white font-bold rounded-xl transition">Adicionar</button>
                     </form>
                 </div>
-
                 <div class="bg-white dark:bg-darkcard p-6 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 relative overflow-hidden transition-colors">
                     <div class="absolute top-0 left-0 w-1 h-full bg-rose-500"></div>
-                    <h2 class="text-lg font-bold mb-4 flex items-center gap-2 text-slate-800 dark:text-slate-100">
-                        <span class="bg-rose-100 dark:bg-rose-900 p-2 rounded-lg text-rose-600 dark:text-rose-300">🖨️</span> Imprimir
-                    </h2>
+                    <h2 class="text-lg font-bold mb-4 flex items-center gap-2 text-slate-800 dark:text-slate-100"><span class="bg-rose-100 dark:bg-rose-900 p-2 rounded-lg text-rose-600 dark:text-rose-300">🖨️</span> Imprimir</h2>
                     <form id="add-project-form" class="space-y-3">
-                        <select id="project-user-select" required class="w-full p-3 bg-slate-50 dark:bg-darkinput border border-slate-200 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-rose-500 outline-none dark:text-white">
-                            <option value="" disabled selected>Quem?</option>
-                            <option value="Telmo">Telmo</option><option value="Humberto">Humberto</option><option value="Empresa">Empresa</option>
-                        </select>
+                        <select id="project-user-select" required class="w-full p-3 bg-slate-50 dark:bg-darkinput border border-slate-200 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-rose-500 outline-none dark:text-white"><option value="" disabled selected>Quem?</option><option value="Telmo">Telmo</option><option value="Humberto">Humberto</option><option value="Empresa">Empresa</option></select>
                         <input type="text" id="project-name" placeholder="Nome do Projeto" required class="w-full p-3 bg-slate-50 dark:bg-darkinput border border-slate-200 dark:border-slate-600 rounded-xl outline-none dark:text-white">
-                        <select id="project-filament-select" required class="w-full p-3 bg-slate-50 dark:bg-darkinput border border-slate-200 dark:border-slate-600 rounded-xl outline-none dark:text-white">
-                            <option value="" disabled selected>Filamento...</option>
-                        </select>
-                        <div class="relative">
-                            <input type="number" id="grams-required" step="1" min="1" placeholder="Gramas" required class="w-full p-3 bg-slate-50 dark:bg-darkinput border border-slate-200 dark:border-slate-600 rounded-xl outline-none dark:text-white">
-                            <span class="absolute right-4 top-3 text-slate-400 text-sm">g</span>
-                        </div>
-                        <button type="submit" class="w-full py-3 bg-rose-600 hover:bg-rose-700 text-white font-bold rounded-xl transition shadow-lg shadow-rose-200 dark:shadow-none">Registar</button>
+                        <select id="project-filament-select" required class="w-full p-3 bg-slate-50 dark:bg-darkinput border border-slate-200 dark:border-slate-600 rounded-xl outline-none dark:text-white"><option value="" disabled selected>Filamento...</option></select>
+                        <div class="relative"><input type="number" id="grams-required" step="1" min="1" placeholder="Gramas" required class="w-full p-3 bg-slate-50 dark:bg-darkinput border border-slate-200 dark:border-slate-600 rounded-xl outline-none dark:text-white"><span class="absolute right-4 top-3 text-slate-400 text-sm">g</span></div>
+                        <button type="submit" class="w-full py-3 bg-rose-600 hover:bg-rose-700 text-white font-bold rounded-xl transition">Registar</button>
                     </form>
                 </div>
             </div>
 
             <div class="lg:col-span-8 space-y-6">
                 <div class="bg-white dark:bg-darkcard rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 overflow-hidden transition-colors">
-                    <div class="p-5 border-b border-slate-100 dark:border-slate-700 flex justify-between items-center bg-slate-50/50 dark:bg-slate-800/50">
-                        <h3 class="font-bold text-slate-700 dark:text-slate-200">Fila de Impressão</h3>
-                        <span id="pending-count" class="bg-rose-100 dark:bg-rose-900 text-rose-700 dark:text-rose-200 text-xs px-2 py-1 rounded-full font-bold">0</span>
-                    </div>
-                    <div class="project-table-container">
-                        <table class="w-full text-sm text-left">
-                            <thead class="text-xs text-slate-500 dark:text-slate-400 uppercase bg-slate-50 dark:bg-slate-700 sticky top-0">
-                                <tr><th class="px-6 py-3">Projeto</th><th class="px-6 py-3">User</th><th class="px-6 py-3">Material</th><th class="px-6 py-3 text-right">Peso</th><th class="px-6 py-3 text-center">Ação</th></tr>
-                            </thead>
-                            <tbody id="project-list" class="divide-y divide-slate-100 dark:divide-slate-700 dark:text-slate-300">
-                                <tr><td colspan="5" class="px-6 py-8 text-center text-slate-400">Vazio.</td></tr>
-                            </tbody>
-                        </table>
-                    </div>
+                    <div class="p-5 border-b border-slate-100 dark:border-slate-700 flex justify-between items-center bg-slate-50/50 dark:bg-slate-800/50"><h3 class="font-bold text-slate-700 dark:text-slate-200">Fila de Impressão</h3><span id="pending-count" class="bg-rose-100 dark:bg-rose-900 text-rose-700 dark:text-rose-200 text-xs px-2 py-1 rounded-full font-bold">0</span></div>
+                    <div class="project-table-container"><table class="w-full text-sm text-left"><thead class="text-xs text-slate-500 dark:text-slate-400 uppercase bg-slate-50 dark:bg-slate-700 sticky top-0"><tr><th class="px-6 py-3">Projeto</th><th class="px-6 py-3">User</th><th class="px-6 py-3">Material</th><th class="px-6 py-3 text-right">Peso</th><th class="px-6 py-3 text-center">Ação</th></tr></thead><tbody id="project-list" class="divide-y divide-slate-100 dark:divide-slate-700 dark:text-slate-300"><tr><td colspan="5" class="px-6 py-8 text-center text-slate-400">Vazio.</td></tr></tbody></table></div>
                 </div>
-
-                <div class="bg-white dark:bg-darkcard p-6 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 transition-colors">
-                    <h3 class="font-bold text-slate-700 dark:text-slate-200 mb-4">Stock</h3>
-                    <div id="filament-list" class="grid grid-cols-1 md:grid-cols-2 gap-4 scrollable-list pr-2"></div>
-                </div>
-
+                <div class="bg-white dark:bg-darkcard p-6 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 transition-colors"><h3 class="font-bold text-slate-700 dark:text-slate-200 mb-4">Stock</h3><div id="filament-list" class="grid grid-cols-1 md:grid-cols-2 gap-4 scrollable-list pr-2"></div></div>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div id="report-Telmo" class="bg-white dark:bg-darkcard p-5 rounded-2xl shadow-sm border-t-4 border-blue-500 transition-colors"><h4 class="font-bold text-slate-700 dark:text-slate-200 flex justify-between">Telmo <span class="cost text-blue-600 dark:text-blue-400">€0.00</span></h4><p class="text-xs text-slate-400 mt-1 mb-3 total-grams">0g</p><div class="bg-slate-50 dark:bg-slate-700/50 rounded-lg p-3"><ul class="top-mats text-xs space-y-1 text-slate-600 dark:text-slate-300"></ul></div></div>
                     <div id="report-Humberto" class="bg-white dark:bg-darkcard p-5 rounded-2xl shadow-sm border-t-4 border-purple-500 transition-colors"><h4 class="font-bold text-slate-700 dark:text-slate-200 flex justify-between">Humberto <span class="cost text-purple-600 dark:text-purple-400">€0.00</span></h4><p class="text-xs text-slate-400 mt-1 mb-3 total-grams">0g</p><div class="bg-slate-50 dark:bg-slate-700/50 rounded-lg p-3"><ul class="top-mats text-xs space-y-1 text-slate-600 dark:text-slate-300"></ul></div></div>
                     <div id="report-Empresa" class="bg-white dark:bg-darkcard p-5 rounded-2xl shadow-sm border-t-4 border-orange-500 transition-colors"><h4 class="font-bold text-slate-700 dark:text-slate-200 flex justify-between">Empresa <span class="cost text-orange-600 dark:text-orange-400">€0.00</span></h4><p class="text-xs text-slate-400 mt-1 mb-3 total-grams">0g</p><div class="bg-slate-50 dark:bg-slate-700/50 rounded-lg p-3"><ul class="top-mats text-xs space-y-1 text-slate-600 dark:text-slate-300"></ul></div></div>
                 </div>
-
-                <div class="bg-white dark:bg-darkcard p-6 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 transition-colors">
-                    <h3 class="font-bold text-slate-700 dark:text-slate-200 mb-4">Histórico</h3>
-                    <div id="history-list" class="space-y-2 scrollable-list"></div>
-                </div>
+                <div class="bg-white dark:bg-darkcard p-6 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 transition-colors"><h3 class="font-bold text-slate-700 dark:text-slate-200 mb-4">Histórico</h3><div id="history-list" class="space-y-2 scrollable-list"></div></div>
             </div>
         </div>
     </main>
 
     <div id="modal" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-[110] backdrop-blur-sm">
         <div class="bg-white dark:bg-darkcard p-6 rounded-2xl shadow-2xl max-w-sm w-full mx-4 transform transition-all scale-100 border border-slate-100 dark:border-slate-600">
-            <h3 id="modal-title" class="text-lg font-bold text-slate-900 dark:text-white mb-2"></h3>
-            <p id="modal-msg" class="text-slate-600 dark:text-slate-300 mb-6 text-sm leading-relaxed"></p>
-            <div class="flex justify-end gap-3">
-                <button id="modal-cancel" class="px-4 py-2 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 font-medium hidden transition">Cancelar</button>
-                <button id="modal-ok" class="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 font-medium transition shadow-lg shadow-indigo-200 dark:shadow-none">OK</button>
-            </div>
+            <h3 id="modal-title" class="text-lg font-bold text-slate-900 dark:text-white mb-2"></h3><p id="modal-msg" class="text-slate-600 dark:text-slate-300 mb-6 text-sm leading-relaxed"></p>
+            <div class="flex justify-end gap-3"><button id="modal-cancel" class="px-4 py-2 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 font-medium hidden transition">Cancelar</button><button id="modal-ok" class="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 font-medium transition shadow-lg shadow-indigo-200 dark:shadow-none">OK</button></div>
         </div>
     </div>
 
     <script type="module">
         // --- CONFIGURAÇÕES ---
-        const SECRET_PIN = "2025"; // <--- O TEU PIN
+        const SECRET_PIN = "1234"; // <--- O TEU PIN
         const API = '/api';
 
-        // --- Dark Mode (Mantemos em LocalStorage) ---
-        const btn = document.getElementById('theme-toggle'), sun=document.getElementById('icon-sun'), moon=document.getElementById('icon-moon');
-        const setDark = (d) => { if(d){document.documentElement.classList.add('dark');sun.classList.remove('hidden');moon.classList.add('hidden');}else{document.documentElement.classList.remove('dark');sun.classList.add('hidden');moon.classList.remove('hidden');}};
+        // --- Dark Mode ---
+        const btn=document.getElementById('theme-toggle'), sun=document.getElementById('icon-sun'), moon=document.getElementById('icon-moon');
+        const setDark=(d)=>{if(d){document.documentElement.classList.add('dark');sun.classList.remove('hidden');moon.classList.add('hidden');}else{document.documentElement.classList.remove('dark');sun.classList.add('hidden');moon.classList.remove('hidden');}};
         if(localStorage.getItem('th')==='d'||(!('th' in localStorage)&&window.matchMedia('(prefers-color-scheme: dark)').matches)) setDark(true); else setDark(false);
         btn.onclick=()=>{const d=document.documentElement.classList.contains('dark'); localStorage.setItem('th',d?'l':'d'); setDark(!d);};
 
-        // --- Login Logic (SESSIONSTORAGE) ---
+        // --- Login ---
         const ls=document.getElementById('login-screen'), ac=document.getElementById('app-content');
         if(sessionStorage.getItem('auth')==='1') show();
 
         document.getElementById('login-form').onsubmit=(e)=>{
             e.preventDefault();
-            if(document.getElementById('access-code').value===SECRET_PIN){
-                sessionStorage.setItem('auth','1');
-                show();
-            } else {
-                document.getElementById('login-error').classList.remove('hidden');
-            }
+            if(document.getElementById('access-code').value===SECRET_PIN){sessionStorage.setItem('auth','1');show();}
+            else document.getElementById('login-error').classList.remove('hidden');
         };
-
-        document.getElementById('logout-btn').onclick=()=>{
-            sessionStorage.removeItem('auth');
-            location.reload();
-        };
-
+        document.getElementById('logout-btn').onclick=()=>{sessionStorage.removeItem('auth');location.reload();};
         function show(){ls.classList.add('hidden');ac.classList.remove('hidden');start();}
 
         // --- App Logic ---
@@ -234,10 +162,21 @@ to me
 
         const load=async()=>{
             try{
+                // Tentamos carregar. Se falhar (ex: rate limit ou cold start), vai para o catch.
                 const [f,p,h]=await Promise.all([fetch(`${API}/filaments`),fetch(`${API}/projects`),fetch(`${API}/history`)]);
-                if(f.ok) fils=await f.json(); if(p.ok) projs=await p.json(); if(h.ok) hist=await h.json();
-                render(); $('loading-overlay').classList.add('hidden');
-            }catch(e){console.error(e);}
+               
+                // Proteção: Só atualizamos as variáveis se a resposta for OK (Status 200)
+                // Se der erro 500 ou 429, mantemos os dados antigos no ecrã!
+                if(f.ok) fils=await f.json();
+                if(p.ok) projs=await p.json();
+                if(h.ok) hist=await h.json();
+               
+                render();
+                $('loading-overlay').classList.add('hidden');
+            }catch(e){
+                console.warn("A aguardar conexão DB...", e);
+                // Não fazemos nada, o ecrã mantém-se com a info antiga
+            }
         };
 
         const render=()=>{
@@ -258,7 +197,7 @@ to me
             if(!projs.length) pl.innerHTML='<tr><td colspan="5" class="px-6 py-8 text-center text-slate-400 dark:text-slate-500">Vazio.</td></tr>';
             else projs.forEach(p=>{
                 const fn=fils.find(f=>f.id===p.filamentId)?.name||'Desconhecido';
-                pl.innerHTML+=`<tr class="bg-white dark:bg-darkcard hover:bg-slate-50 dark:hover:bg-slate-700 border-b border-slate-100 dark:border-slate-700 transition"><td class="px-6 py-4 font-medium text-slate-900 dark:text-white">${p.projectName}</td><td class="px-6 py-4 text-slate-500 dark:text-slate-400">${p.user}</td><td class="px-6 py-4 text-slate-500 dark:text-slate-400 text-xs">${fn}</td><td class="px-6 py-4 text-right font-mono text-slate-600 dark:text-slate-300">${p.gramsRequired}g</td><td class="px-6 py-4 text-center"><button onclick="conP('${p.id}')" class="bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 text-xs font-bold px-3 py-1.5 rounded-full transition">✔ Concluir</button></td></tr>`;
+                pl.innerHTML+=`<tr class="bg-white dark:bg-darkcard hover:bg-slate-50 dark:hover:bg-slate-700 border-b border-slate-100 dark:border-slate-700 transition"><td class="px-6 py-4 font-medium text-slate-900 dark:text-white">${p.projectName}</td><td class="px-6 py-4 text-slate-500 dark:text-slate-400">${p.user}</td><td class="px-6 py-4 text-slate-500 dark:text-slate-400 text-xs">${fn}</td><td class="px-6 py-4 text-right font-mono text-slate-600 dark:text-slate-300">${p.gramsRequired}g</td><td class="px-6 py-4 text-center"><button onclick="conP('${p.id}')" class="bg-emerald-100 dark:bg-emerald-900/30 hover:bg-emerald-200 dark:hover:bg-emerald-900/50 text-emerald-700 dark:text-emerald-400 text-xs font-bold px-3 py-1.5 rounded-full transition">✔ Concluir</button></td></tr>`;
             });
 
             const hl=$('history-list'); hl.innerHTML='';
@@ -283,7 +222,10 @@ to me
         $('add-filament-form').onsubmit=async(e)=>{e.preventDefault();await fetch(`${API}/filaments`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:$('name').value,type:$('type').value,initial_kg:$('initial_kg').value,cost_per_kg:$('cost_per_kg').value,userId:'Admin'})});e.target.reset();load();};
         $('add-project-form').onsubmit=async(e)=>{e.preventDefault();const fid=$('project-filament-select').value, f=fils.find(i=>i.id===fid); if(f&&f.remaining_g<$('grams-required').value)return modal('Stock Baixo',`Só restam ${f.remaining_g}g`); await fetch(`${API}/projects`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({user:$('project-user-select').value,projectName:$('project-name').value,filamentId:fid,gramsRequired:$('grams-required').value,costPerKg:f.cost_per_kg,userId:'Admin'})});e.target.reset();load();};
 
-        function start(){load();setInterval(load,4000);}
+        function start(){
+            load();
+            setInterval(load, 10000); // Atualizar a cada 10 segundos para evitar limites
+        }
     </script>
 </body>
 </html>
