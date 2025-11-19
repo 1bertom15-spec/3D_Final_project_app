@@ -1,3 +1,8 @@
+
+Humberto Melo <1bertom15@gmail.com>
+21:28 (0 minutes ago)
+to me
+
 <!DOCTYPE html>
 <html lang="pt">
 <head>
@@ -180,149 +185,105 @@
     </div>
 
     <script type="module">
-        // --- CONFIGURAÇÃO DE SEGURANÇA ---
-        const SECRET_PIN = "2025"; // <--- ALTERAR ISTO PARA O TEU CÓDIGO DESEJADO
-       
-        // --- Dark Mode Logic ---
-        const themeBtn = document.getElementById('theme-toggle');
-        const sun = document.getElementById('icon-sun');
-        const moon = document.getElementById('icon-moon');
-       
-        const updateThemeIcon = (isDark) => {
-            if(isDark) { document.documentElement.classList.add('dark'); sun.classList.remove('hidden'); moon.classList.add('hidden'); }
-            else { document.documentElement.classList.remove('dark'); sun.classList.add('hidden'); moon.classList.remove('hidden'); }
-        };
-       
-        if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) updateThemeIcon(true);
-        else updateThemeIcon(false);
+        // --- CONFIGURAÇÕES ---
+        const SECRET_PIN = "2025"; // <--- O TEU PIN
+        const API = '/api';
 
-        themeBtn.addEventListener('click', () => {
-            const isDark = document.documentElement.classList.contains('dark');
-            localStorage.setItem('theme', isDark ? 'light' : 'dark');
-            updateThemeIcon(!isDark);
-        });
+        // --- Dark Mode (Mantemos em LocalStorage) ---
+        const btn = document.getElementById('theme-toggle'), sun=document.getElementById('icon-sun'), moon=document.getElementById('icon-moon');
+        const setDark = (d) => { if(d){document.documentElement.classList.add('dark');sun.classList.remove('hidden');moon.classList.add('hidden');}else{document.documentElement.classList.remove('dark');sun.classList.add('hidden');moon.classList.remove('hidden');}};
+        if(localStorage.getItem('th')==='d'||(!('th' in localStorage)&&window.matchMedia('(prefers-color-scheme: dark)').matches)) setDark(true); else setDark(false);
+        btn.onclick=()=>{const d=document.documentElement.classList.contains('dark'); localStorage.setItem('th',d?'l':'d'); setDark(!d);};
 
-        // --- Login Logic ---
-        const loginScreen = document.getElementById('login-screen');
-        const appContent = document.getElementById('app-content');
-        const loginForm = document.getElementById('login-form');
-        const logoutBtn = document.getElementById('logout-btn');
+        // --- Login Logic (SESSIONSTORAGE) ---
+        const ls=document.getElementById('login-screen'), ac=document.getElementById('app-content');
+        if(sessionStorage.getItem('auth')==='1') show();
 
-        if (localStorage.getItem('access') === 'ok') showApp();
-
-        loginForm.onsubmit = (e) => {
+        document.getElementById('login-form').onsubmit=(e)=>{
             e.preventDefault();
-            if (document.getElementById('access-code').value === SECRET_PIN) {
-                localStorage.setItem('access', 'ok');
-                showApp();
+            if(document.getElementById('access-code').value===SECRET_PIN){
+                sessionStorage.setItem('auth','1');
+                show();
             } else {
                 document.getElementById('login-error').classList.remove('hidden');
             }
         };
 
-        logoutBtn.onclick = () => {
-            localStorage.removeItem('access');
+        document.getElementById('logout-btn').onclick=()=>{
+            sessionStorage.removeItem('auth');
             location.reload();
         };
 
-        function showApp() {
-            loginScreen.classList.add('hidden');
-            appContent.classList.remove('hidden');
-            startApp();
-        }
+        function show(){ls.classList.add('hidden');ac.classList.remove('hidden');start();}
 
         // --- App Logic ---
-        const API = '/api';
-        let filaments = [], projects = [], history = [];
-
-        const $ = (id) => document.getElementById(id);
-        const formatMoney = (v) => `€ ${parseFloat(v).toFixed(2)}`;
-        const formatKg = (v) => `${(v/1000).toFixed(3)} Kg`;
-
-        const showModal = (title, msg, confirm = false) => {
-            const m = $('modal'), t = $('modal-title'), ms = $('modal-msg'), ok = $('modal-ok'), cx = $('modal-cancel');
-            t.textContent = title; ms.textContent = msg; ok.textContent = confirm ? 'Confirmar' : 'OK';
-            cx.classList.toggle('hidden', !confirm);
-            m.classList.remove('hidden'); m.classList.add('flex');
-            return new Promise(r => {
-                const close = (res) => { m.classList.add('hidden'); m.classList.remove('flex'); ok.replaceWith(ok.cloneNode(true)); cx.replaceWith(cx.cloneNode(true)); r(res); };
-                $('modal-ok').onclick = () => close(true); $('modal-cancel').onclick = () => close(false);
+        let fils=[], projs=[], hist=[];
+        const $=id=>document.getElementById(id);
+        const fmtM=v=>`€ ${parseFloat(v).toFixed(2)}`;
+        const fmtK=v=>`${(v/1000).toFixed(3)} Kg`;
+       
+        const modal=(t,m,c=false)=>{
+            const md=$('modal'),ok=$('modal-ok'),cx=$('modal-cancel');
+            $('modal-title').textContent=t; $('modal-msg').textContent=m; ok.textContent=c?'Confirmar':'OK';
+            cx.classList.toggle('hidden',!c); md.classList.remove('hidden'); md.classList.add('flex');
+            return new Promise(r=>{
+                const end=(v)=>{md.classList.add('hidden');md.classList.remove('flex');ok.replaceWith(ok.cloneNode(true));cx.replaceWith(cx.cloneNode(true));r(v);};
+                $('modal-ok').onclick=()=>end(true); $('modal-cancel').onclick=()=>end(false);
             });
         };
 
-        const loadData = async () => {
-            try {
-                const [fRes, pRes, hRes] = await Promise.all([ fetch(`${API}/filaments`), fetch(`${API}/projects`), fetch(`${API}/history`) ]);
-                if(fRes.ok) filaments = await fRes.json();
-                if(pRes.ok) projects = await pRes.json();
-                if(hRes.ok) history = await hRes.json();
-                render();
-                $('loading-overlay').classList.add('hidden');
-            } catch (e) { console.error(e); }
+        const load=async()=>{
+            try{
+                const [f,p,h]=await Promise.all([fetch(`${API}/filaments`),fetch(`${API}/projects`),fetch(`${API}/history`)]);
+                if(f.ok) fils=await f.json(); if(p.ok) projs=await p.json(); if(h.ok) hist=await h.json();
+                render(); $('loading-overlay').classList.add('hidden');
+            }catch(e){console.error(e);}
         };
 
-        const render = () => {
-            let totalG = 0, totalEur = 0;
-            filaments.forEach(f => { totalG += f.remaining_g; totalEur += (f.remaining_g/1000) * f.cost_per_kg; });
-            $('total-weight').textContent = formatKg(totalG); $('total-value').textContent = formatMoney(totalEur);
+        const render=()=>{
+            let totG=0, totE=0; fils.forEach(f=>{totG+=f.remaining_g; totE+=(f.remaining_g/1000)*f.cost_per_kg;});
+            $('total-weight').textContent=fmtK(totG); $('total-value').textContent=fmtM(totE);
 
-            const fList = $('filament-list'); fList.innerHTML = '';
-            filaments.sort((a,b) => b.remaining_g - a.remaining_g).forEach(f => {
-                const pct = Math.min(100, Math.max(0, (f.remaining_g / (f.initial_kg * 1000)) * 100));
-                const low = f.remaining_g < 100;
-                fList.innerHTML += `
-                    <div class="p-4 rounded-xl border ${low ? 'border-red-200 bg-red-50 dark:bg-red-900/20 dark:border-red-800' : 'border-slate-100 bg-slate-50 dark:bg-darkinput dark:border-slate-600'} relative group transition-colors">
-                        <div class="flex justify-between items-start mb-2">
-                            <div><p class="font-bold text-slate-700 dark:text-white">${f.name}</p><span class="text-[10px] uppercase font-bold bg-white dark:bg-slate-600 px-2 py-1 rounded text-slate-500 dark:text-slate-300 border border-slate-200 dark:border-slate-500">${f.type}</span></div>
-                            <button onclick="deleteFil('${f.id}', '${f.name}')" class="text-slate-300 hover:text-red-500 dark:text-slate-500 dark:hover:text-red-400 transition"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" /></svg></button>
-                        </div>
-                        <div class="flex justify-between text-sm text-slate-600 dark:text-slate-300 mb-1"><span>${Math.round(f.remaining_g)}g</span><span class="text-slate-400 dark:text-slate-500">${pct.toFixed(0)}%</span></div>
-                        <div class="w-full bg-slate-200 dark:bg-slate-600 rounded-full h-1.5 overflow-hidden"><div class="h-full ${low ? 'bg-red-500' : 'bg-indigo-500 dark:bg-indigo-400'} transition-all duration-500" style="width:${pct}%"></div></div>
-                    </div>`;
+            const fl=$('filament-list'); fl.innerHTML='';
+            fils.sort((a,b)=>b.remaining_g-a.remaining_g).forEach(f=>{
+                const p=Math.min(100,Math.max(0,(f.remaining_g/(f.initial_kg*1000))*100)), l=f.remaining_g<100;
+                fl.innerHTML+=`<div class="p-4 rounded-xl border ${l?'border-red-200 bg-red-50 dark:bg-red-900/20 dark:border-red-800':'border-slate-100 bg-slate-50 dark:bg-darkinput dark:border-slate-600'} relative group"><div class="flex justify-between items-start mb-2"><div><p class="font-bold text-slate-700 dark:text-white">${f.name}</p><span class="text-[10px] uppercase font-bold bg-white dark:bg-slate-600 px-2 py-1 rounded text-slate-500 dark:text-slate-300 border border-slate-200 dark:border-slate-500">${f.type}</span></div><button onclick="delF('${f.id}','${f.name}')" class="text-slate-300 hover:text-red-500 transition"><svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd"/></svg></button></div><div class="flex justify-between text-sm text-slate-600 dark:text-slate-300 mb-1"><span>${Math.round(f.remaining_g)}g</span><span class="text-slate-400">${p.toFixed(0)}%</span></div><div class="w-full bg-slate-200 dark:bg-slate-600 rounded-full h-1.5 overflow-hidden"><div class="h-full ${l?'bg-red-500':'bg-indigo-500'} transition-all duration-500" style="width:${p}%"></div></div></div>`;
             });
 
-            const sel = $('project-filament-select'); const val = sel.value;
-            sel.innerHTML = '<option value="" disabled selected>Escolher Filamento...</option>';
-            filaments.filter(f => f.remaining_g > 0).forEach(f => { const op = document.createElement('option'); op.value = f.id; op.textContent = `${f.name} (${Math.round(f.remaining_g)}g)`; sel.appendChild(op); });
-            if(val) sel.value = val;
+            const sel=$('project-filament-select'), v=sel.value; sel.innerHTML='<option value="" disabled selected>Escolher...</option>';
+            fils.filter(f=>f.remaining_g>0).forEach(f=>{const o=document.createElement('option');o.value=f.id;o.textContent=`${f.name} (${Math.round(f.remaining_g)}g)`;sel.appendChild(o);});
+            if(v) sel.value=v;
 
-            const pList = $('project-list'); pList.innerHTML = ''; $('pending-count').textContent = projects.length;
-            if(!projects.length) pList.innerHTML = '<tr><td colspan="5" class="px-6 py-8 text-center text-slate-400 dark:text-slate-500">Vazio.</td></tr>';
-            else projects.forEach(p => {
-                const fName = filaments.find(f => f.id === p.filamentId)?.name || 'Desconhecido';
-                pList.innerHTML += `
-                    <tr class="bg-white dark:bg-darkcard hover:bg-slate-50 dark:hover:bg-slate-700 border-b border-slate-100 dark:border-slate-700 transition">
-                        <td class="px-6 py-4 font-medium text-slate-900 dark:text-white">${p.projectName}</td><td class="px-6 py-4 text-slate-500 dark:text-slate-400">${p.user}</td><td class="px-6 py-4 text-slate-500 dark:text-slate-400 text-xs">${fName}</td><td class="px-6 py-4 text-right font-mono text-slate-600 dark:text-slate-300">${p.gramsRequired}g</td>
-                        <td class="px-6 py-4 text-center"><button onclick="completeProject('${p.id}')" class="bg-emerald-100 dark:bg-emerald-900/30 hover:bg-emerald-200 dark:hover:bg-emerald-900/50 text-emerald-700 dark:text-emerald-400 text-xs font-bold px-3 py-1.5 rounded-full transition">✔ Concluir</button></td>
-                    </tr>`;
+            const pl=$('project-list'); pl.innerHTML=''; $('pending-count').textContent=projs.length;
+            if(!projs.length) pl.innerHTML='<tr><td colspan="5" class="px-6 py-8 text-center text-slate-400 dark:text-slate-500">Vazio.</td></tr>';
+            else projs.forEach(p=>{
+                const fn=fils.find(f=>f.id===p.filamentId)?.name||'Desconhecido';
+                pl.innerHTML+=`<tr class="bg-white dark:bg-darkcard hover:bg-slate-50 dark:hover:bg-slate-700 border-b border-slate-100 dark:border-slate-700 transition"><td class="px-6 py-4 font-medium text-slate-900 dark:text-white">${p.projectName}</td><td class="px-6 py-4 text-slate-500 dark:text-slate-400">${p.user}</td><td class="px-6 py-4 text-slate-500 dark:text-slate-400 text-xs">${fn}</td><td class="px-6 py-4 text-right font-mono text-slate-600 dark:text-slate-300">${p.gramsRequired}g</td><td class="px-6 py-4 text-center"><button onclick="conP('${p.id}')" class="bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 text-xs font-bold px-3 py-1.5 rounded-full transition">✔ Concluir</button></td></tr>`;
             });
 
-            const hList = $('history-list'); hList.innerHTML = '';
-            if(!history.length) hList.innerHTML = '<p class="text-center text-slate-400 py-4">Vazio.</p>';
-            else history.slice(0, 20).forEach(h => {
-                hList.innerHTML += `
-                    <div class="flex justify-between items-center p-3 hover:bg-slate-50 dark:hover:bg-slate-700/50 rounded-lg transition border border-transparent hover:border-slate-100 dark:hover:border-slate-700">
-                        <div><p class="text-sm font-bold text-slate-700 dark:text-slate-200"><span class="${h.user === 'Telmo' ? 'text-blue-600 dark:text-blue-400' : h.user === 'Humberto' ? 'text-purple-600 dark:text-purple-400' : 'text-orange-600 dark:text-orange-400'}">${h.user}</span>: ${h.description}</p><p class="text-xs text-slate-400">Mat: ${h.filamentName || '?'}</p></div>
-                        <div class="text-right"><p class="text-sm font-bold text-slate-700 dark:text-slate-200">${formatMoney(h.cost)}</p><p class="text-xs font-mono text-red-500">-${h.gramsUsed}g</p></div>
-                    </div>`;
+            const hl=$('history-list'); hl.innerHTML='';
+            if(!hist.length) hl.innerHTML='<p class="text-center text-slate-400 py-4">Vazio.</p>';
+            else hist.slice(0,20).forEach(h=>{
+                hl.innerHTML+=`<div class="flex justify-between items-center p-3 hover:bg-slate-50 dark:hover:bg-slate-700/50 rounded-lg transition border border-transparent hover:border-slate-100 dark:hover:border-slate-700 group"><div><p class="text-sm font-bold text-slate-700 dark:text-slate-200"><span class="${h.user==='Telmo'?'text-blue-500':h.user==='Humberto'?'text-purple-500':'text-orange-500'}">${h.user}</span>: ${h.description}</p><p class="text-xs text-slate-400">Mat: ${h.filamentName||'?'}</p></div><div class="flex items-center gap-3"><div class="text-right"><p class="text-sm font-bold text-slate-700 dark:text-slate-200">${fmtM(h.cost)}</p><p class="text-xs font-mono text-red-500">-${h.gramsUsed}g</p></div><button onclick="delH('${h.id}')" class="text-slate-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition p-1" title="Anular e Devolver Stock"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" /></svg></button></div></div>`;
             });
 
-            const users = ['Telmo', 'Humberto', 'Empresa'];
-            const stats = { Telmo: {c:0, g:0, mats:{}}, Humberto: {c:0, g:0, mats:{}}, Empresa: {c:0, g:0, mats:{}} };
-            history.forEach(h => { if(stats[h.user]) { stats[h.user].c += h.cost; stats[h.user].g += h.gramsUsed; const mat = h.filamentName || 'Outro'; stats[h.user].mats[mat] = (stats[h.user].mats[mat] || 0) + h.gramsUsed; } });
-            users.forEach(u => {
-                const div = $(`report-${u}`); div.querySelector('.cost').textContent = formatMoney(stats[u].c); div.querySelector('.total-grams').textContent = `${stats[u].g}g`;
-                const topList = div.querySelector('.top-mats'); const sortedMats = Object.entries(stats[u].mats).sort(([,a],[,b]) => b-a).slice(0, 3);
-                topList.innerHTML = sortedMats.length ? sortedMats.map(([n, g]) => `<li class="flex justify-between"><span>${n}</span> <b>${g}g</b></li>`).join('') : '<li class="italic text-slate-300 dark:text-slate-500">Sem dados</li>';
+            const st={Telmo:{c:0,g:0,m:{}},Humberto:{c:0,g:0,m:{}},Empresa:{c:0,g:0,m:{}}};
+            hist.forEach(h=>{if(st[h.user]){st[h.user].c+=h.cost;st[h.user].g+=h.gramsUsed;const m=h.filamentName||'Outro';st[h.user].m[m]=(st[h.user].m[m]||0)+h.gramsUsed;}});
+            ['Telmo','Humberto','Empresa'].forEach(u=>{
+                const d=$(`report-${u}`), s=st[u]; d.querySelector('.cost').textContent=fmtM(s.c); d.querySelector('.total-grams').textContent=`${s.g}g`;
+                const tm=Object.entries(s.m).sort(([,a],[,b])=>b-a).slice(0,3);
+                d.querySelector('.top-mats').innerHTML=tm.length?tm.map(([n,g])=>`<li class="flex justify-between"><span>${n}</span><b>${g}g</b></li>`).join(''):'<li class="italic text-slate-400">--</li>';
             });
         };
 
-        window.deleteFil = async (id, name) => { if(await showModal('Apagar?', `Remover "${name}"?`, true)) { await fetch(`${API}/filaments/${id}`, {method:'DELETE'}); loadData(); } };
-        window.completeProject = async (id) => { if(await showModal('Concluir?', 'Confirmar impressão?', true)) { const res = await fetch(`${API}/projects/complete`, {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({projectId:id})}); if(!res.ok) showModal('Erro', (await res.json()).error); else loadData(); } };
-        $('add-filament-form').onsubmit = async (e) => { e.preventDefault(); await fetch(`${API}/filaments`, {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({name:$('name').value, type:$('type').value, initial_kg:$('initial_kg').value, cost_per_kg:$('cost_per_kg').value, userId:'Admin'})}); e.target.reset(); loadData(); };
-        $('add-project-form').onsubmit = async (e) => { e.preventDefault(); const fid=$('project-filament-select').value; const fil=filaments.find(f=>f.id===fid); if(fil && fil.remaining_g < $('grams-required').value) return showModal('Stock Baixo', 'Insuficiente'); await fetch(`${API}/projects`, {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({user:$('project-user-select').value, projectName:$('project-name').value, filamentId:fid, gramsRequired:$('grams-required').value, costPerKg:fil.cost_per_kg, userId:'Admin'})}); e.target.reset(); loadData(); };
+        window.delF=async(id,n)=>{if(await modal('Apagar?',`Remover "${n}"?`,true)){await fetch(`${API}/filaments/${id}`,{method:'DELETE'});load();}};
+        window.delH=async(id)=>{if(await modal('Anular?',`Apagar registo e DEVOLVER gramas ao stock?`,true)){const r=await fetch(`${API}/history?id=${id}`,{method:'DELETE'});if(r.ok)load();else modal('Erro','Falha');}};
+        window.conP=async(id)=>{if(await modal('Concluir?',`Confirmar?`,true)){const r=await fetch(`${API}/projects/complete`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({projectId:id})});if(r.ok)load();else modal('Erro',(await r.json()).error);}};
 
-        function startApp() { loadData(); setInterval(loadData, 4000); }
+        $('add-filament-form').onsubmit=async(e)=>{e.preventDefault();await fetch(`${API}/filaments`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:$('name').value,type:$('type').value,initial_kg:$('initial_kg').value,cost_per_kg:$('cost_per_kg').value,userId:'Admin'})});e.target.reset();load();};
+        $('add-project-form').onsubmit=async(e)=>{e.preventDefault();const fid=$('project-filament-select').value, f=fils.find(i=>i.id===fid); if(f&&f.remaining_g<$('grams-required').value)return modal('Stock Baixo',`Só restam ${f.remaining_g}g`); await fetch(`${API}/projects`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({user:$('project-user-select').value,projectName:$('project-name').value,filamentId:fid,gramsRequired:$('grams-required').value,costPerKg:f.cost_per_kg,userId:'Admin'})});e.target.reset();load();};
+
+        function start(){load();setInterval(load,4000);}
     </script>
 </body>
 </html>
