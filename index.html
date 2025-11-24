@@ -261,33 +261,61 @@
         $('add-filament-form').onsubmit=async(e)=>{e.preventDefault();await fetch(`${API}/filaments`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:$('name').value,type:$('type').value,initial_kg:$('initial_kg').value,cost_per_kg:$('cost_per_kg').value,userId:'Admin'})});e.target.reset();load();};
         
         // --- SUBMIT COM 5 SLOTS ---
-        $('add-project-form').onsubmit=async(e)=>{
+       $('add-project-form').onsubmit = async (e) => {
             e.preventDefault();
+            
+            // 1. Criar a lista
             let list = [];
             for(let i=1; i<=5; i++){
-                const fid=$(`f${i}`).value, g=$(`g${i}`).value;
-                if(fid && g && g > 0) list.push({filamentId:fid, grams:g});
-            }
-            if(list.length===0) return modal('Erro','Preenche pelo menos o 1º filamento');
-            
-            // Check stock local
-            for(const item of list){
-                const f = fils.find(i=>i.id===item.filamentId);
-                if(f && f.remaining_g < item.grams) return modal('Stock Insuficiente', `Só há ${Math.round(f.remaining_g)}g de ${f.name}`);
+                const fid = $(`f${i}`).value;
+                const g = $(`g${i}`).value;
+                if(fid && g && parseFloat(g) > 0) {
+                    list.push({ filamentId: fid, grams: g });
+                }
             }
 
-            await fetch(`${API}/projects`,{method:'POST',headers:{'Content-Type':'application/json'},
-                body:JSON.stringify({
-                    user:$('project-user-select').value,
-                    projectName:$('project-name').value,
-                    materials:list,
-                    userId:'Admin'
-                })
-            });
-            // Limpa form manual
-            $('project-name').value=''; $('project-user-select').value='';
-            for(let i=1;i<=5;i++){ $(`f${i}`).value=''; $(`g${i}`).value=''; }
-            load();
+            // 2. Validações básicas
+            if(list.length === 0) return modal('Erro', 'Preenche pelo menos o 1º filamento');
+
+            // Verificar stock antes de enviar
+            for(const item of list){
+                const f = fils.find(i => i.id === item.filamentId);
+                if(f && f.remaining_g < item.grams) {
+                    return modal('Stock Insuficiente', `Só há ${Math.round(f.remaining_g)}g de ${f.name}`);
+                }
+            }
+
+            // 3. Enviar para a API
+            try {
+                const response = await fetch(`${API}/projects`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        user: $('project-user-select').value,
+                        projectName: $('project-name').value,
+                        materials: list,
+                        userId: 'Admin'
+                    })
+                });
+
+                // SE DER ERRO NO SERVIDOR:
+                if (!response.ok) {
+                    const errData = await response.json();
+                    throw new Error(errData.error || "Erro desconhecido no servidor");
+                }
+
+                // SUCESSO: Só limpa se correu bem
+                $('project-name').value = ''; 
+                $('project-user-select').value = '';
+                for(let i=1; i<=5; i++){ $(`f${i}`).value=''; $(`g${i}`).value=''; }
+                
+                load(); // Atualiza a tabela
+
+            } catch (error) {
+                // Se falhar, mostra o erro e NÃO LIMPA o form
+                modal('Erro ao Gravar', error.message);
+                console.error(error);
+            }
         };
 
         function start(){ load(); setInterval(load, 10000); }
