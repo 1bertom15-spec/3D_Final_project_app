@@ -1,3 +1,5 @@
+
+
 <!DOCTYPE html>
 <html lang="pt">
 <head>
@@ -150,29 +152,24 @@
     </div>
 
     <script type="module">
-        // --- CONFIGURAÇÕES ---
+        // --- CONFIG ---
         const SECRET_PIN = "2025"; 
         const API = '/api';
 
-        // --- Dark Mode ---
+        // --- Theme ---
         const btn=document.getElementById('theme-toggle'), sun=document.getElementById('icon-sun'), moon=document.getElementById('icon-moon');
         const setDark=(d)=>{if(d){document.documentElement.classList.add('dark');sun.classList.remove('hidden');moon.classList.add('hidden');}else{document.documentElement.classList.remove('dark');sun.classList.add('hidden');moon.classList.remove('hidden');}};
         if(localStorage.getItem('th')==='d'||(!('th' in localStorage)&&window.matchMedia('(prefers-color-scheme: dark)').matches)) setDark(true); else setDark(false);
         btn.onclick=()=>{const d=document.documentElement.classList.contains('dark'); localStorage.setItem('th',d?'l':'d'); setDark(!d);};
 
-        // --- Login ---
+        // --- Auth ---
         const ls=document.getElementById('login-screen'), ac=document.getElementById('app-content');
         if(sessionStorage.getItem('auth')==='1') show();
-
-        document.getElementById('login-form').onsubmit=(e)=>{
-            e.preventDefault();
-            if(document.getElementById('access-code').value===SECRET_PIN){sessionStorage.setItem('auth','1');show();}
-            else document.getElementById('login-error').classList.remove('hidden');
-        };
+        document.getElementById('login-form').onsubmit=(e)=>{e.preventDefault();if(document.getElementById('access-code').value===SECRET_PIN){sessionStorage.setItem('auth','1');show();}else document.getElementById('login-error').classList.remove('hidden');};
         document.getElementById('logout-btn').onclick=()=>{sessionStorage.removeItem('auth');location.reload();};
         function show(){ls.classList.add('hidden');ac.classList.remove('hidden');start();}
 
-        // --- App Logic ---
+        // --- Logic ---
         let fils=[], projs=[], hist=[];
         const $=id=>document.getElementById(id);
         const fmtM=v=>`€ ${parseFloat(v).toFixed(2)}`;
@@ -196,7 +193,7 @@
                 if(h.ok) hist=await h.json();
                 render();
                 $('loading-overlay').classList.add('hidden');
-            }catch(e){ console.warn("Erro ao carregar", e); }
+            }catch(e){ console.warn("Sync error", e); }
         };
 
         const render=()=>{
@@ -204,33 +201,39 @@
             let totG=0, totE=0; fils.forEach(f=>{totG+=f.remaining_g; totE+=(f.remaining_g/1000)*f.cost_per_kg;});
             $('total-weight').textContent=fmtK(totG); $('total-value').textContent=fmtM(totE);
 
-            // 2. Lista Filamentos (Stock)
+            // 2. Lista Filamentos (Visual)
             const fl=$('filament-list'); fl.innerHTML='';
             fils.sort((a,b)=>b.remaining_g-a.remaining_g).forEach(f=>{
                 const p=Math.min(100,Math.max(0,(f.remaining_g/(f.initial_kg*1000))*100)), l=f.remaining_g<100;
                 fl.innerHTML+=`<div class="p-4 rounded-xl border ${l?'border-red-200 bg-red-50 dark:bg-red-900/20 dark:border-red-800':'border-slate-100 bg-slate-50 dark:bg-darkinput dark:border-slate-600'} relative group"><div class="flex justify-between items-start mb-2"><div><p class="font-bold text-slate-700 dark:text-white">${f.name}</p><span class="text-[10px] uppercase font-bold bg-white dark:bg-slate-600 px-2 py-1 rounded text-slate-500 dark:text-slate-300 border border-slate-200 dark:border-slate-500">${f.type}</span></div><button onclick="delF('${f.id}','${f.name}')" class="text-slate-300 hover:text-red-500 transition"><svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd"/></svg></button></div><div class="flex justify-between text-sm text-slate-600 dark:text-slate-300 mb-1"><span>${Math.round(f.remaining_g)}g</span><span class="text-slate-400">${p.toFixed(0)}%</span></div><div class="w-full bg-slate-200 dark:bg-slate-600 rounded-full h-1.5 overflow-hidden"><div class="h-full ${l?'bg-red-500':'bg-indigo-500'} transition-all duration-500" style="width:${p}%"></div></div></div>`;
             });
 
-            // 3. Preencher os 5 Selects do Form
+            // 3. Preencher Selects (COM CORREÇÃO PARA NÃO APAGAR O QUE ESTÁS A ESCREVER)
             const opts = '<option value="">(Opcional)</option>' + fils.filter(f=>f.remaining_g>0).map(f=>`<option value="${f.id}">${f.name} (${Math.round(f.remaining_g)}g)</option>`).join('');
             ['f1','f2','f3','f4','f5'].forEach(id=>{
-                const el=$(id); if(el){ el.innerHTML = opts; if(id==='f1') el.options[0].text = "Escolher Principal..."; }
+                const el=$(id);
+                if(el){
+                    // Guarda o que o utilizador escolheu antes de atualizar
+                    const prev = el.value; 
+                    el.innerHTML = opts; 
+                    // Repõe o valor para não "saltar"
+                    el.value = prev;       
+                    if(id==='f1' && !prev) el.options[0].text = "Escolher Principal...";
+                }
             });
 
-            // 4. Lista de Projetos (Fila)
+            // 4. Fila
             const pl=$('project-list'); pl.innerHTML=''; $('pending-count').textContent=projs.length;
             if(!projs.length) pl.innerHTML='<tr><td colspan="5" class="px-6 py-8 text-center text-slate-400 dark:text-slate-500">Vazio.</td></tr>';
             else projs.forEach(p=>{
-                // Calcula nome e peso total (suporta lista nova ou campo antigo)
-                let dName = 'Desconhecido', dWeight = 0;
-                if(p.materials && p.materials.length > 0) {
+                let dName='Desc', dWeight=0;
+                if(p.materials && p.materials.length>0){
                     dWeight = p.materials.reduce((a,b)=>a+parseFloat(b.grams),0);
-                    dName = p.materials.length === 1 ? (fils.find(f=>f.id===p.materials[0].filamentId)?.name || 'Bobine Apagada') : `${p.materials.length} Bobines (Misto)`;
+                    dName = p.materials.length===1 ? (fils.find(f=>f.id===p.materials[0].filamentId)?.name||'?') : `${p.materials.length} Bobines (Misto)`;
                 } else {
                     dName = fils.find(f=>f.id===p.filamentId)?.name || 'Legacy';
                     dWeight = p.gramsRequired;
                 }
-                
                 pl.innerHTML+=`<tr class="bg-white dark:bg-darkcard hover:bg-slate-50 dark:hover:bg-slate-700 border-b border-slate-100 dark:border-slate-700 transition"><td class="px-6 py-4 font-medium text-slate-900 dark:text-white">${p.projectName}</td><td class="px-6 py-4 text-slate-500 dark:text-slate-400">${p.user}</td><td class="px-6 py-4 text-slate-500 dark:text-slate-400 text-xs">${dName}</td><td class="px-6 py-4 text-right font-mono text-slate-600 dark:text-slate-300">${dWeight}g</td><td class="px-6 py-4 text-center"><button onclick="conP('${p.id}')" class="bg-emerald-100 dark:bg-emerald-900/30 hover:bg-emerald-200 dark:hover:bg-emerald-900/50 text-emerald-700 dark:text-emerald-400 text-xs font-bold px-3 py-1.5 rounded-full transition">✔ Concluir</button></td></tr>`;
             });
 
@@ -241,7 +244,7 @@
                 hl.innerHTML+=`<div class="flex justify-between items-center p-3 hover:bg-slate-50 dark:hover:bg-slate-700/50 rounded-lg transition border border-transparent hover:border-slate-100 dark:hover:border-slate-700 group"><div><p class="text-sm font-bold text-slate-700 dark:text-slate-200"><span class="${h.user==='Telmo'?'text-blue-500':h.user==='Humberto'?'text-purple-500':'text-orange-500'}">${h.user}</span>: ${h.description}</p></div><div class="flex items-center gap-3"><div class="text-right"><p class="text-sm font-bold text-slate-700 dark:text-slate-200">${fmtM(h.cost)}</p><p class="text-xs font-mono text-red-500">-${h.gramsUsed}g</p></div><button onclick="delH('${h.id}')" class="text-slate-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition p-1" title="Anular"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" /></svg></button></div></div>`;
             });
 
-            // 6. Reports (Gráficos/Stats)
+            // 6. Reports
             const st={Telmo:{c:0,g:0,m:{}},Humberto:{c:0,g:0,m:{}},Empresa:{c:0,g:0,m:{}}};
             hist.forEach(h=>{if(st[h.user]){st[h.user].c+=h.cost;st[h.user].g+=h.gramsUsed;const m=h.filamentName||'Outros';st[h.user].m[m]=(st[h.user].m[m]||0)+h.gramsUsed;}});
             ['Telmo','Humberto','Empresa'].forEach(u=>{
@@ -252,23 +255,22 @@
         };
 
         window.delF=async(id,n)=>{if(await modal('Apagar?',`Remover "${n}"?`,true)){await fetch(`${API}/filaments/${id}`,{method:'DELETE'});load();}};
-        window.delH=async(id)=>{if(await modal('Anular?',`Apagar registo e DEVOLVER gramas ao stock?`,true)){const r=await fetch(`${API}/history?id=${id}`,{method:'DELETE'});if(r.ok)load();else modal('Erro','Falha');}};
+        window.delH=async(id)=>{if(await modal('Anular?',`Apagar registo e DEVOLVER stock?`,true)){const r=await fetch(`${API}/history?id=${id}`,{method:'DELETE'});if(r.ok)load();else modal('Erro','Falha');}};
         window.conP=async(id)=>{if(await modal('Concluir?',`Confirmar?`,true)){const r=await fetch(`${API}/projects/complete`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({projectId:id})});if(r.ok)load();else modal('Erro',(await r.json()).error);}};
 
         $('add-filament-form').onsubmit=async(e)=>{e.preventDefault();await fetch(`${API}/filaments`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:$('name').value,type:$('type').value,initial_kg:$('initial_kg').value,cost_per_kg:$('cost_per_kg').value,userId:'Admin'})});e.target.reset();load();};
         
-        // --- SUBMIT DO PROJETO COM 5 SLOTS ---
+        // --- SUBMIT COM 5 SLOTS ---
         $('add-project-form').onsubmit=async(e)=>{
             e.preventDefault();
             let list = [];
-            // Verificar os 5 slots
             for(let i=1; i<=5; i++){
                 const fid=$(`f${i}`).value, g=$(`g${i}`).value;
                 if(fid && g && g > 0) list.push({filamentId:fid, grams:g});
             }
             if(list.length===0) return modal('Erro','Preenche pelo menos o 1º filamento');
             
-            // Validação básica de stock no frontend (opcional, mas simpática)
+            // Check stock local
             for(const item of list){
                 const f = fils.find(i=>i.id===item.filamentId);
                 if(f && f.remaining_g < item.grams) return modal('Stock Insuficiente', `Só há ${Math.round(f.remaining_g)}g de ${f.name}`);
@@ -282,7 +284,9 @@
                     userId:'Admin'
                 })
             });
-            e.target.reset();
+            // Limpa form manual
+            $('project-name').value=''; $('project-user-select').value='';
+            for(let i=1;i<=5;i++){ $(`f${i}`).value=''; $(`g${i}`).value=''; }
             load();
         };
 
